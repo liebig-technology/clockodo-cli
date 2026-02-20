@@ -1,0 +1,9 @@
+node_modules/
+dist/
+coverage/
+*.tgz
+.DS_Store
+CLAUDE.md
+internal_docs/
+.env
+.env.*
