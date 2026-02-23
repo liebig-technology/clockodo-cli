@@ -6,30 +6,31 @@ CLI for the [Clockodo](https://www.clockodo.com) time tracking API. Human-friend
 Usage: clockodo [options] [command]
 
 Options:
-  -j, --json     Output as JSON
-  -p, --plain    Output as plain text (no colors)
-  --no-color     Disable colors
-  --no-input     Disable interactive prompts
-  -v, --verbose  Verbose output
+  -V, --version          output the version number
+  -j, --json             Output as JSON
+  -p, --plain            Output as plain text (no colors)
+  --no-color             Disable colors
+  --no-input             Disable interactive prompts
+  -v, --verbose          Verbose output
 
 Commands:
-  config         Manage CLI configuration
-  status         Show running clock and today's summary
-  start          Start time tracking
-  stop           Stop time tracking
-  edit           Edit the running clock entry
-  extend         Extend the running clock by N minutes
-  entries        Manage time entries
-  customers      Manage customers
-  projects       Manage projects
-  services       Manage services
-  users          User management
-  report         Aggregated time reports
-  absences       Manage absences
-  worktimes      Show work time intervals
-  userreport     Show user report (overtime, holidays, absences)
-  userreports    Show user reports for all users
-  schema         Output machine-readable CLI structure (for AI agents)
+  config                 Manage CLI configuration
+  status [options]       Show running clock and today's summary
+  start [options]        Start time tracking
+  stop                   Stop time tracking
+  edit [options]         Edit the running clock entry
+  extend <minutes>       Extend the running clock by N minutes
+  entries                Manage time entries
+  customers              Manage customers
+  projects               Manage projects
+  services               Manage services
+  users                  User management
+  report                 Aggregated time reports
+  absences               Manage absences
+  worktimes [options]    Show work time intervals
+  userreport [options]   Show user report (overtime, holidays, absences)
+  userreports [options]  Show user reports for all users
+  schema                 Output machine-readable CLI structure (for AI agents)
 ```
 
 Every command supports `--help` for full usage details.
@@ -68,6 +69,14 @@ clockodo entries --since 2026-01-01 --until 2026-01-31   # date range
 clockodo entries --billable                              # only billable entries
 clockodo entries create --from "09:00" --to "12:30" --customer 123 --service 456
 clockodo entries update 42 --text "New description" --customer 789 --service 456
+
+# Customers, projects, services
+clockodo customers                                   # list all customers
+clockodo customers create --name "Acme Corp"         # create a customer
+clockodo customers update 42 --name "Acme Inc"       # rename customer 42
+clockodo customers delete 42 --force                 # delete without confirmation
+clockodo projects create --name "Website" --customer 42
+clockodo services create --name "Development"
 
 # Reports
 clockodo report                          # today, grouped by project
