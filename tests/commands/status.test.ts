@@ -64,3 +64,57 @@ describe("status", () => {
     expect(args.timeUntil).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/);
   });
 });
+
+describe("status --prompt", () => {
+  const running = {
+    id: 1,
+    customersId: 10,
+    projectsId: 20,
+    servicesId: 30,
+    text: "Working on tests",
+    timeSince: "2026-02-20T09:00:00Z",
+    type: 1,
+  } as TimeEntry;
+
+  it("returns structured JSON when clock is running", async () => {
+    client.getClock.mockResolvedValue({ running, currentTime: "2026-02-20T12:00:00Z" });
+
+    const result = await runCommand(registerStatusCommand, ["status", "--prompt", "--json"]);
+    const data = result.parseJson().data as Record<string, unknown>;
+
+    expect(data.running).toBe(true);
+    expect(data.text).toBe("Working on tests");
+    expect(typeof data.elapsed).toBe("number");
+    expect(typeof data.formatted).toBe("string");
+  });
+
+  it("returns running=false when no clock is active", async () => {
+    client.getClock.mockResolvedValue({ running: null, currentTime: "2026-02-20T12:00:00Z" });
+
+    const result = await runCommand(registerStatusCommand, ["status", "--prompt", "--json"]);
+    const data = result.parseJson().data as Record<string, unknown>;
+
+    expect(data.running).toBe(false);
+    expect(data.text).toBeNull();
+    expect(data.elapsed).toBe(0);
+  });
+
+  it("does not call getEntries (performance)", async () => {
+    client.getClock.mockResolvedValue({ running, currentTime: "2026-02-20T12:00:00Z" });
+
+    await runCommand(registerStatusCommand, ["status", "--prompt", "--json"]);
+
+    expect(client.getEntries).not.toHaveBeenCalled();
+  });
+
+  it("returns text=null when running entry has no description", async () => {
+    const noText = { ...running, text: null } as unknown as TimeEntry;
+    client.getClock.mockResolvedValue({ running: noText, currentTime: "2026-02-20T12:00:00Z" });
+
+    const result = await runCommand(registerStatusCommand, ["status", "--prompt", "--json"]);
+    const data = result.parseJson().data as Record<string, unknown>;
+
+    expect(data.running).toBe(true);
+    expect(data.text).toBeNull();
+  });
+});

@@ -17,10 +17,41 @@ export function registerStatusCommand(program: Command): void {
   program
     .command("status")
     .description("Show running clock and today's summary")
-    .action(async () => {
+    .option("--prompt", "Single-line output for shell prompts (p10k, starship)")
+    .action(async (cmdOpts) => {
       const opts = program.opts<GlobalOptions>();
       const client = getClient();
       const mode = resolveOutputMode(opts);
+
+      // Fast path for shell prompt integration — single API call, single-line output
+      if (cmdOpts.prompt) {
+        const clock = await client.getClock();
+        const running = clock.running;
+        const elapsed = running ? elapsedSince(running.timeSince) : 0;
+
+        if (mode !== "human") {
+          printResult(
+            {
+              data: {
+                running: !!running,
+                text: running?.text ?? null,
+                elapsed,
+                formatted: formatDuration(elapsed),
+              },
+            },
+            opts,
+          );
+          return;
+        }
+
+        // Plain text, no colors — safe for shell prompts
+        if (running) {
+          const parts = [running.text, formatDuration(elapsed)].filter(Boolean);
+          console.log(parts.join(" "));
+        }
+        // Idle: print nothing (prompt segment hides when empty)
+        return;
+      }
 
       const now = new Date();
       const [clockResult, entriesResult] = await Promise.all([

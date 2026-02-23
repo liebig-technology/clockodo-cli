@@ -82,6 +82,25 @@ clockodo userreport --year 2026
 
 When `--customer` or `--service` is not provided, `start` and `entries create` launch an interactive picker (disable with `--no-input`). You can also set defaults via `clockodo config set`.
 
+## Shell Prompt Integration
+
+`clockodo status --prompt` outputs a single plain-text line for embedding in your terminal prompt:
+
+```bash
+clockodo status --prompt              # "Working on feature 1h 23m" or empty if idle
+clockodo status --prompt --json       # {"data":{"running":true,"text":"...","elapsed":4980,"formatted":"1h 23m"}}
+```
+
+Example for [Starship](https://starship.rs/):
+
+```toml
+# ~/.config/starship.toml
+[custom.clockodo]
+command = "clockodo status --prompt"
+when = true
+symbol = "⏱ "
+```
+
 ## AI Agent Integration
 
 ```bash
