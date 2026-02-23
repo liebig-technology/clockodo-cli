@@ -246,6 +246,9 @@ export function registerEntriesCommands(program: Command): void {
     .option("--from <datetime>", "New start time")
     .option("--to <datetime>", "New end time")
     .option("-t, --text <description>", "New description")
+    .option("-c, --customer <id>", "New customer ID", parseIntStrict)
+    .option("--project <id>", "New project ID", parseIntStrict)
+    .option("-s, --service <id>", "New service ID", parseIntStrict)
     .option("-b, --billable", "Mark as billable")
     .option("--no-billable", "Mark as not billable")
     .action(async (id: string, cmdOpts) => {
@@ -256,6 +259,9 @@ export function registerEntriesCommands(program: Command): void {
       if (cmdOpts.from) updates.timeSince = parseDateTime(cmdOpts.from);
       if (cmdOpts.to) updates.timeUntil = parseDateTime(cmdOpts.to);
       if (cmdOpts.text !== undefined) updates.text = cmdOpts.text;
+      if (cmdOpts.customer !== undefined) updates.customersId = cmdOpts.customer;
+      if (cmdOpts.project !== undefined) updates.projectsId = cmdOpts.project;
+      if (cmdOpts.service !== undefined) updates.servicesId = cmdOpts.service;
       if (cmdOpts.billable !== undefined) updates.billable = cmdOpts.billable ? 1 : 0;
 
       const result = await client.editEntry(updates as Parameters<typeof client.editEntry>[0]);

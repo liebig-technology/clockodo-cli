@@ -104,6 +104,53 @@ describe("entries create", () => {
   });
 });
 
+describe("entries update", () => {
+  it("calls editEntry with customer, project, and service", async () => {
+    client.editEntry.mockResolvedValue({ entry: fakeEntry });
+
+    const result = await runCommand(registerEntriesCommands, [
+      "entries",
+      "update",
+      "100",
+      "--customer",
+      "11",
+      "--project",
+      "22",
+      "--service",
+      "33",
+      "--json",
+    ]);
+
+    expect(client.editEntry).toHaveBeenCalledOnce();
+    const args = client.editEntry.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.id).toBe(100);
+    expect(args.customersId).toBe(11);
+    expect(args.projectsId).toBe(22);
+    expect(args.servicesId).toBe(33);
+    expect(result.parseJson().data).toBeDefined();
+  });
+
+  it("omits unchanged fields when not provided", async () => {
+    client.editEntry.mockResolvedValue({ entry: fakeEntry });
+
+    await runCommand(registerEntriesCommands, [
+      "entries",
+      "update",
+      "100",
+      "--text",
+      "new text",
+      "--json",
+    ]);
+
+    const args = client.editEntry.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.id).toBe(100);
+    expect(args.text).toBe("new text");
+    expect(args).not.toHaveProperty("customersId");
+    expect(args).not.toHaveProperty("projectsId");
+    expect(args).not.toHaveProperty("servicesId");
+  });
+});
+
 describe("entries delete", () => {
   it("calls deleteEntry with --force", async () => {
     client.deleteEntry.mockResolvedValue({ success: true });
