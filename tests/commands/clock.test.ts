@@ -58,6 +58,71 @@ describe("start", () => {
     expect(result.parseJson().data).toBeDefined();
   });
 
+  it("omits billable when neither --billable nor --no-billable is set", async () => {
+    client.startClock.mockResolvedValue({
+      running: fakeEntry,
+      stopped: null,
+      stoppedHasBeenTruncated: false,
+      currentTime: "2026-02-20T09:00:00Z",
+    });
+
+    await runCommand(registerClockCommands, [
+      "start",
+      "--customer",
+      "10",
+      "--service",
+      "30",
+      "--json",
+    ]);
+
+    const args = client.startClock.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args).not.toHaveProperty("billable");
+  });
+
+  it("passes billable when --billable is set", async () => {
+    client.startClock.mockResolvedValue({
+      running: fakeEntry,
+      stopped: null,
+      stoppedHasBeenTruncated: false,
+      currentTime: "2026-02-20T09:00:00Z",
+    });
+
+    await runCommand(registerClockCommands, [
+      "start",
+      "--customer",
+      "10",
+      "--service",
+      "30",
+      "--billable",
+      "--json",
+    ]);
+
+    const args = client.startClock.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.billable).toBe(1);
+  });
+
+  it("passes billable=0 when --no-billable is set", async () => {
+    client.startClock.mockResolvedValue({
+      running: fakeEntry,
+      stopped: null,
+      stoppedHasBeenTruncated: false,
+      currentTime: "2026-02-20T09:00:00Z",
+    });
+
+    await runCommand(registerClockCommands, [
+      "start",
+      "--customer",
+      "10",
+      "--service",
+      "30",
+      "--no-billable",
+      "--json",
+    ]);
+
+    const args = client.startClock.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.billable).toBe(0);
+  });
+
   it("throws INVALID_ARGS when customer/service missing", async () => {
     await expect(runCommand(registerClockCommands, ["start", "--json"])).rejects.toThrow(CliError);
 

@@ -47,6 +47,26 @@ describe("entries list", () => {
     expect(args.timeUntil).toBeDefined();
     expect(json.data).toBeInstanceOf(Array);
   });
+
+  it("passes billable filter to getEntries when --billable is set", async () => {
+    client.getEntries.mockResolvedValue({ entries: [fakeEntry] });
+
+    await runCommand(registerEntriesCommands, ["entries", "list", "--billable", "--json"]);
+
+    const args = client.getEntries.mock.calls[0]?.[0] as Record<string, unknown>;
+    const filter = args.filter as Record<string, unknown>;
+    expect(filter.billable).toBe(1);
+  });
+
+  it("passes not-billable filter to getEntries when --no-billable is set", async () => {
+    client.getEntries.mockResolvedValue({ entries: [fakeEntry] });
+
+    await runCommand(registerEntriesCommands, ["entries", "list", "--no-billable", "--json"]);
+
+    const args = client.getEntries.mock.calls[0]?.[0] as Record<string, unknown>;
+    const filter = args.filter as Record<string, unknown>;
+    expect(filter.billable).toBe(0);
+  });
 });
 
 describe("entries get", () => {
@@ -62,6 +82,7 @@ describe("entries get", () => {
 
 describe("entries create", () => {
   it("calls addEntry with required params", async () => {
+    client.getCustomer.mockResolvedValue({ data: { id: 10, billableDefault: false } });
     client.addEntry.mockResolvedValue({ entry: fakeEntry });
 
     const result = await runCommand(registerEntriesCommands, [
@@ -83,6 +104,96 @@ describe("entries create", () => {
     expect(args.customersId).toBe(10);
     expect(args.servicesId).toBe(30);
     expect(result.parseJson().data).toBeDefined();
+  });
+
+  it("passes billable=1 when --billable is set", async () => {
+    client.addEntry.mockResolvedValue({ entry: fakeEntry });
+
+    await runCommand(registerEntriesCommands, [
+      "entries",
+      "create",
+      "--from",
+      "09:00",
+      "--to",
+      "10:00",
+      "--customer",
+      "10",
+      "--service",
+      "30",
+      "--billable",
+      "--json",
+    ]);
+
+    const args = client.addEntry.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.billable).toBe(1);
+  });
+
+  it("passes billable=0 when --no-billable is set", async () => {
+    client.addEntry.mockResolvedValue({ entry: fakeEntry });
+
+    await runCommand(registerEntriesCommands, [
+      "entries",
+      "create",
+      "--from",
+      "09:00",
+      "--to",
+      "10:00",
+      "--customer",
+      "10",
+      "--service",
+      "30",
+      "--no-billable",
+      "--json",
+    ]);
+
+    const args = client.addEntry.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.billable).toBe(0);
+  });
+
+  it("resolves billable default from project when no flag is set", async () => {
+    client.getProject.mockResolvedValue({ data: { id: 20, billableDefault: true } });
+    client.addEntry.mockResolvedValue({ entry: fakeEntry });
+
+    await runCommand(registerEntriesCommands, [
+      "entries",
+      "create",
+      "--from",
+      "09:00",
+      "--to",
+      "10:00",
+      "--customer",
+      "10",
+      "--project",
+      "20",
+      "--service",
+      "30",
+      "--json",
+    ]);
+
+    const args = client.addEntry.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.billable).toBe(1);
+  });
+
+  it("resolves billable default from customer when no project is set", async () => {
+    client.getCustomer.mockResolvedValue({ data: { id: 10, billableDefault: false } });
+    client.addEntry.mockResolvedValue({ entry: fakeEntry });
+
+    await runCommand(registerEntriesCommands, [
+      "entries",
+      "create",
+      "--from",
+      "09:00",
+      "--to",
+      "10:00",
+      "--customer",
+      "10",
+      "--service",
+      "30",
+      "--json",
+    ]);
+
+    const args = client.addEntry.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.billable).toBe(0);
   });
 
   it("throws INVALID_ARGS without customer/service", async () => {
@@ -130,6 +241,30 @@ describe("entries update", () => {
     expect(result.parseJson().data).toBeDefined();
   });
 
+  it("sends billable=1 when --billable is set", async () => {
+    client.editEntry.mockResolvedValue({ entry: fakeEntry });
+
+    await runCommand(registerEntriesCommands, ["entries", "update", "100", "--billable", "--json"]);
+
+    const args = client.editEntry.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.billable).toBe(1);
+  });
+
+  it("sends billable=0 when --no-billable is set", async () => {
+    client.editEntry.mockResolvedValue({ entry: fakeEntry });
+
+    await runCommand(registerEntriesCommands, [
+      "entries",
+      "update",
+      "100",
+      "--no-billable",
+      "--json",
+    ]);
+
+    const args = client.editEntry.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.billable).toBe(0);
+  });
+
   it("omits unchanged fields when not provided", async () => {
     client.editEntry.mockResolvedValue({ entry: fakeEntry });
 
@@ -148,6 +283,7 @@ describe("entries update", () => {
     expect(args).not.toHaveProperty("customersId");
     expect(args).not.toHaveProperty("projectsId");
     expect(args).not.toHaveProperty("servicesId");
+    expect(args).not.toHaveProperty("billable");
   });
 });
 

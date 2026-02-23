@@ -1,6 +1,6 @@
 import { styleText } from "node:util";
 import * as p from "@clack/prompts";
-import { getEntryDurationUntilNow, isTimeEntry } from "clockodo";
+import { Billability, getEntryDurationUntilNow, isTimeEntry } from "clockodo";
 import type { Command } from "commander";
 import { getClient } from "../lib/client.js";
 import { getConfigValue } from "../lib/config.js";
@@ -38,6 +38,8 @@ export function registerEntriesCommands(program: Command): void {
     .option("--project <id>", "Filter by project ID", parseIntStrict)
     .option("--service <id>", "Filter by service ID", parseIntStrict)
     .option("--text <search>", "Filter by description text")
+    .option("-b, --billable", "Show only billable entries")
+    .option("--no-billable", "Show only non-billable entries")
     .option(
       "-g, --group <field>",
       "Group by: customer, project, service, text (shows summary table instead)",
@@ -56,6 +58,8 @@ export function registerEntriesCommands(program: Command): void {
       if (cmdOpts.project) filter.projectsId = cmdOpts.project;
       if (cmdOpts.service) filter.servicesId = cmdOpts.service;
       if (cmdOpts.text) filter.text = cmdOpts.text;
+      if (cmdOpts.billable !== undefined)
+        filter.billable = cmdOpts.billable ? Billability.Billable : Billability.NotBillable;
 
       const result = await client.getEntries({
         timeSince: since,
@@ -174,7 +178,7 @@ export function registerEntriesCommands(program: Command): void {
           ["Customer ID", e.customersId],
           ["Project ID", e.projectsId ?? null],
           ["Service ID", isTimeEntry(e) ? e.servicesId : null],
-          ["Billable", e.billable === 1 ? "Yes" : e.billable === 2 ? "Billed" : "No"],
+          ["Billable", formatBillable(e.billable)],
         ],
         opts,
       );
@@ -191,6 +195,7 @@ export function registerEntriesCommands(program: Command): void {
     .option("-s, --service <id>", "Service ID", parseIntStrict)
     .option("-t, --text <description>", "Entry description")
     .option("-b, --billable", "Mark as billable")
+    .option("--no-billable", "Mark as not billable")
     .action(async (cmdOpts) => {
       const opts = program.opts<GlobalOptions>();
       const mode = resolveOutputMode(opts);
@@ -216,10 +221,21 @@ export function registerEntriesCommands(program: Command): void {
         );
       }
 
+      let billable: Billability;
+      if (cmdOpts.billable !== undefined) {
+        billable = cmdOpts.billable ? Billability.Billable : Billability.NotBillable;
+      } else if (projectsId) {
+        const { data: project } = await client.getProject({ id: projectsId });
+        billable = project.billableDefault ? Billability.Billable : Billability.NotBillable;
+      } else {
+        const { data: customer } = await client.getCustomer({ id: customersId });
+        billable = customer.billableDefault ? Billability.Billable : Billability.NotBillable;
+      }
+
       const result = await client.addEntry({
         customersId,
         servicesId,
-        billable: cmdOpts.billable ? 1 : 0,
+        billable,
         timeSince: parseDateTime(cmdOpts.from),
         timeUntil: parseDateTime(cmdOpts.to),
         ...(projectsId && { projectsId }),
@@ -262,7 +278,8 @@ export function registerEntriesCommands(program: Command): void {
       if (cmdOpts.customer !== undefined) updates.customersId = cmdOpts.customer;
       if (cmdOpts.project !== undefined) updates.projectsId = cmdOpts.project;
       if (cmdOpts.service !== undefined) updates.servicesId = cmdOpts.service;
-      if (cmdOpts.billable !== undefined) updates.billable = cmdOpts.billable ? 1 : 0;
+      if (cmdOpts.billable !== undefined)
+        updates.billable = cmdOpts.billable ? Billability.Billable : Billability.NotBillable;
 
       const result = await client.editEntry(updates as Parameters<typeof client.editEntry>[0]);
 
@@ -361,4 +378,15 @@ function groupEntries(
   return [...map.entries()]
     .map(([k, v]) => ({ key: k, ...v }))
     .sort((a, b) => b.seconds - a.seconds);
+}
+
+function formatBillable(value: number): string {
+  switch (value) {
+    case Billability.Billable:
+      return "Yes";
+    case Billability.Billed:
+      return "Billed";
+    default:
+      return "No";
+  }
 }

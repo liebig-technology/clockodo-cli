@@ -19,6 +19,7 @@ export function registerClockCommands(program: Command): void {
     .option("-s, --service <id>", "Service ID", parseIntStrict)
     .option("-t, --text <description>", "Entry description")
     .option("-b, --billable", "Mark as billable")
+    .option("--no-billable", "Mark as not billable")
     .action(async (cmdOpts) => {
       const opts = program.opts<GlobalOptions>();
       const mode = resolveOutputMode(opts);
@@ -47,9 +48,11 @@ export function registerClockCommands(program: Command): void {
       const result = await client.startClock({
         customersId,
         servicesId,
+        ...(cmdOpts.billable !== undefined && {
+          billable: cmdOpts.billable ? Billability.Billable : Billability.NotBillable,
+        }),
         ...(projectsId && { projectsId }),
         ...(cmdOpts.text && { text: cmdOpts.text }),
-        ...(cmdOpts.billable && { billable: Billability.Billable }),
       });
 
       if (mode !== "human") {
