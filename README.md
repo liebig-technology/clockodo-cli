@@ -17,6 +17,8 @@ Commands:
   status         Show running clock and today's summary
   start          Start time tracking
   stop           Stop time tracking
+  edit           Edit the running clock entry
+  extend         Extend the running clock by N minutes
   entries        Manage time entries
   customers      Manage customers
   projects       Manage projects
@@ -57,6 +59,8 @@ clockodo start --customer 123 --service 456 --text "Working on feature"
 clockodo start --customer 123 --service 456 --billable   # explicit billability
 clockodo stop
 clockodo status
+clockodo edit --text "New description" --billable         # edit running entry
+clockodo extend 30                                        # extend running clock by 30 minutes
 
 # Entries
 clockodo entries                                         # list today's entries

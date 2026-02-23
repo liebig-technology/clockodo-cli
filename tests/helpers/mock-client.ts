@@ -27,6 +27,7 @@ const METHODS = [
   "getWorkTimes",
   "getUserReport",
   "getUserReports",
+  "changeClockDuration",
 ] as const;
 
 type MockedMethod = ReturnType<typeof vi.fn>;

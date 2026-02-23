@@ -1,4 +1,4 @@
-import { Billability } from "clockodo";
+import { Billability, getEntryDurationUntilNow } from "clockodo";
 import type { Command } from "commander";
 import { getClient } from "../lib/client.js";
 import { getConfigValue } from "../lib/config.js";
@@ -93,5 +93,85 @@ export function registerClockCommands(program: Command): void {
       if (result.stopped.text) {
         console.log(`  Description: ${result.stopped.text}`);
       }
+    });
+
+  // Desire path: `clockodo edit`
+  program
+    .command("edit")
+    .description("Edit the running clock entry")
+    .option("-c, --customer <id>", "Customer ID", parseIntStrict)
+    .option("-p, --project <id>", "Project ID", parseIntStrict)
+    .option("-s, --service <id>", "Service ID", parseIntStrict)
+    .option("-t, --text <description>", "Entry description")
+    .option("-b, --billable", "Mark as billable")
+    .option("--no-billable", "Mark as not billable")
+    .action(async (cmdOpts) => {
+      const opts = program.opts<GlobalOptions>();
+      const client = getClient();
+
+      const clock = await client.getClock();
+      if (!clock.running) {
+        throw new CliError("No clock is currently running.", ExitCode.EMPTY_RESULTS);
+      }
+
+      const updates: Record<string, unknown> = { id: clock.running.id };
+      if (cmdOpts.customer !== undefined) updates.customersId = cmdOpts.customer;
+      if (cmdOpts.project !== undefined) updates.projectsId = cmdOpts.project;
+      if (cmdOpts.service !== undefined) updates.servicesId = cmdOpts.service;
+      if (cmdOpts.text !== undefined) updates.text = cmdOpts.text;
+      if (cmdOpts.billable !== undefined)
+        updates.billable = cmdOpts.billable ? Billability.Billable : Billability.NotBillable;
+
+      // Only the id key means no actual updates were provided
+      if (Object.keys(updates).length === 1) {
+        throw new CliError(
+          "No update flags provided.",
+          ExitCode.INVALID_ARGS,
+          "Use --text, --customer, --project, --service, --billable, or --no-billable",
+        );
+      }
+
+      const result = await client.editEntry(updates as Parameters<typeof client.editEntry>[0]);
+
+      const mode = resolveOutputMode(opts);
+      if (mode !== "human") {
+        printResult({ data: result.entry }, opts);
+        return;
+      }
+
+      printSuccess("Running entry updated");
+    });
+
+  // Desire path: `clockodo extend`
+  program
+    .command("extend")
+    .description("Extend the running clock by N minutes")
+    .argument("<minutes>", "Minutes to extend by", parseIntStrict)
+    .action(async (minutes: number) => {
+      const opts = program.opts<GlobalOptions>();
+      const client = getClient();
+
+      const clock = await client.getClock();
+      if (!clock.running) {
+        throw new CliError("No clock is currently running.", ExitCode.EMPTY_RESULTS);
+      }
+
+      const durationBefore = getEntryDurationUntilNow(clock.running);
+      const duration = durationBefore + minutes * 60;
+
+      const result = await client.changeClockDuration({
+        entriesId: clock.running.id,
+        durationBefore,
+        duration,
+      });
+
+      const mode = resolveOutputMode(opts);
+      if (mode !== "human") {
+        printResult({ data: result.updated }, opts);
+        return;
+      }
+
+      printSuccess(`Clock extended by ${minutes} minutes`);
+      console.log(`  New duration: ${formatDuration(duration)}`);
     });
 }
