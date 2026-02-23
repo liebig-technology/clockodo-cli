@@ -28,6 +28,15 @@ const METHODS = [
   "getUserReport",
   "getUserReports",
   "changeClockDuration",
+  "addCustomer",
+  "editCustomer",
+  "deleteCustomer",
+  "addProject",
+  "editProject",
+  "deleteProject",
+  "addService",
+  "editService",
+  "deleteService",
 ] as const;
 
 type MockedMethod = ReturnType<typeof vi.fn>;
