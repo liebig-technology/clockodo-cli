@@ -54,18 +54,21 @@ Credentials are stored in `~/.config/clockodo-cli/config.json`. Environment vari
 ```bash
 # Time tracking
 clockodo start --customer 123 --service 456 --text "Working on feature"
+clockodo start --customer 123 --service 456 --billable   # explicit billability
 clockodo stop
 clockodo status
 
 # Entries
 clockodo entries                                         # list today's entries
 clockodo entries --since 2026-01-01 --until 2026-01-31   # date range
+clockodo entries --billable                              # only billable entries
 clockodo entries create --from "09:00" --to "12:30" --customer 123 --service 456
+clockodo entries update 42 --text "New description" --customer 789 --service 456
 
 # Reports
-clockodo report              # today
-clockodo report week         # this week
-clockodo report month        # this month
+clockodo report                          # today, grouped by project
+clockodo report week --group customer    # this week by customer
+clockodo report month --group text       # this month by description
 
 # Absences, work times, user reports
 clockodo absences list --year 2026
