@@ -257,10 +257,171 @@ describe("report --group text", () => {
   });
 });
 
+describe("report filters", () => {
+  it("--customer passes filter to getEntryGroups", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, ["report", "today", "--customer", "10", "--json"]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toEqual({ customersId: 10 });
+  });
+
+  it("--customer with --group text passes filter to getEntries", async () => {
+    client.getEntries.mockResolvedValue({ entries: fakeEntries });
+
+    await runCommand(registerReportCommands, [
+      "report",
+      "today",
+      "--group",
+      "text",
+      "--customer",
+      "10",
+      "--json",
+    ]);
+
+    const args = client.getEntries.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toEqual({ customersId: 10 });
+  });
+
+  it("--text filter combined with --group text passes filter to getEntries", async () => {
+    client.getEntries.mockResolvedValue({ entries: fakeEntries });
+
+    await runCommand(registerReportCommands, [
+      "report",
+      "today",
+      "--group",
+      "text",
+      "--text",
+      "refactoring",
+      "--json",
+    ]);
+
+    const args = client.getEntries.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toEqual({ text: "refactoring" });
+  });
+
+  it("combines multiple filters", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, [
+      "report",
+      "today",
+      "--customer",
+      "10",
+      "--service",
+      "1000",
+      "--json",
+    ]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toEqual({ customersId: 10, servicesId: 1000 });
+  });
+
+  it("--text passes filter.text to getEntryGroups", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, [
+      "report",
+      "today",
+      "--text",
+      "refactoring",
+      "--json",
+    ]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toEqual({ text: "refactoring" });
+  });
+
+  it("--user passes filter.usersId to getEntryGroups", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, ["report", "today", "--user", "42", "--json"]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toEqual({ usersId: 42 });
+  });
+
+  it("--project passes filter.projectsId to getEntryGroups", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, ["report", "today", "--project", "100", "--json"]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toEqual({ projectsId: 100 });
+  });
+
+  it("no filter flags → no filter property in API call", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, ["report", "today", "--json"]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toBeUndefined();
+  });
+
+  it("filters work on week subcommand", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, ["report", "week", "--customer", "10", "--json"]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toEqual({ customersId: 10 });
+  });
+
+  it("filters work on month subcommand", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, ["report", "month", "--customer", "10", "--json"]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toEqual({ customersId: 10 });
+  });
+
+  it("filters work on custom subcommand", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, [
+      "report",
+      "custom",
+      "--since",
+      "2026-02-01",
+      "--until",
+      "2026-02-28",
+      "--customer",
+      "10",
+      "--json",
+    ]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, unknown>;
+    expect(args.filter).toEqual({ customersId: 10 });
+  });
+});
+
 describe("report --group validation", () => {
   it("throws INVALID_ARGS for unknown group field", async () => {
     try {
       await runCommand(registerReportCommands, ["report", "today", "--group", "invalid", "--json"]);
+      expect.unreachable("should have thrown");
+    } catch (error) {
+      expect(error).toBeInstanceOf(CliError);
+      expect((error as CliError).exitCode).toBe(ExitCode.INVALID_ARGS);
+    }
+  });
+});
+
+describe("report custom validation", () => {
+  it("throws INVALID_ARGS when --since is after --until", async () => {
+    try {
+      await runCommand(registerReportCommands, [
+        "report",
+        "custom",
+        "--since",
+        "2026-02-28",
+        "--until",
+        "2026-02-01",
+        "--json",
+      ]);
       expect.unreachable("should have thrown");
     } catch (error) {
       expect(error).toBeInstanceOf(CliError);

@@ -18,10 +18,16 @@ import {
   startOfWeek,
   toClockodoDateTime,
 } from "../lib/time.js";
+import { parseIntStrict } from "../lib/validate.js";
 import type { GlobalOptions } from "../types/index.js";
 
 interface ReportOptions {
   group?: string;
+  customer?: number;
+  project?: number;
+  service?: number;
+  text?: string;
+  user?: number;
 }
 
 const GROUP_ALIASES: Record<string, string> = {
@@ -91,13 +97,30 @@ function groupEntriesByText(
   return [...map.values()].sort((a, b) => b.seconds - a.seconds);
 }
 
-async function runTextReport(program: Command, since: Date, until: Date): Promise<void> {
+function buildFilter(cmdOpts: ReportOptions): Record<string, unknown> | undefined {
+  const filter: Record<string, unknown> = {};
+  if (cmdOpts.customer !== undefined) filter.customersId = cmdOpts.customer;
+  if (cmdOpts.project !== undefined) filter.projectsId = cmdOpts.project;
+  if (cmdOpts.service !== undefined) filter.servicesId = cmdOpts.service;
+  if (cmdOpts.text !== undefined) filter.text = cmdOpts.text;
+  if (cmdOpts.user !== undefined) filter.usersId = cmdOpts.user;
+  return Object.keys(filter).length > 0 ? filter : undefined;
+}
+
+async function runTextReport(
+  program: Command,
+  since: Date,
+  until: Date,
+  cmdOpts: ReportOptions,
+): Promise<void> {
   const opts = program.opts<GlobalOptions>();
   const client = getClient();
+  const filter = buildFilter(cmdOpts);
 
   const result = await client.getEntries({
     timeSince: toClockodoDateTime(since),
     timeUntil: toClockodoDateTime(until),
+    ...(filter && { filter }),
   });
 
   const entryList = result.entries ?? [];
@@ -157,19 +180,21 @@ async function runReport(
   until: Date,
   cmdOpts: ReportOptions,
 ): Promise<void> {
-  const groupField = resolveReportGroupKey(cmdOpts.group ?? "projects_id");
+  const groupField = resolveReportGroupKey(cmdOpts.group ?? "project");
 
   if (groupField === "text") {
-    return runTextReport(program, since, until);
+    return runTextReport(program, since, until, cmdOpts);
   }
 
   const opts = program.opts<GlobalOptions>();
   const client = getClient();
+  const filter = buildFilter(cmdOpts);
 
   const result = await client.getEntryGroups({
     timeSince: toClockodoDateTime(since),
     timeUntil: toClockodoDateTime(until),
     grouping: [groupField],
+    ...(filter && { filter }),
   });
 
   const groups = result.groups ?? [];
@@ -207,45 +232,61 @@ async function runReport(
   printReportTotal(totalSeconds);
 }
 
+function addFilterOptions(cmd: Command): Command {
+  return cmd
+    .option("--customer <id>", "Filter by customer ID", parseIntStrict)
+    .option("--project <id>", "Filter by project ID", parseIntStrict)
+    .option("--service <id>", "Filter by service ID", parseIntStrict)
+    .option("--text <text>", "Filter by description text")
+    .option("--user <id>", "Filter by user ID", parseIntStrict);
+}
+
 export function registerReportCommands(program: Command): void {
   const report = program.command("report").description("Aggregated time reports");
 
-  report
-    .command("today", { isDefault: true })
-    .description("Today's summary")
-    .option("-g, --group <field>", "Group by: customer, project, service, text", "projects_id")
-    .action(async (cmdOpts) => {
-      const now = new Date();
-      await runReport(program, startOfDay(now), endOfDay(now), cmdOpts);
-    });
+  addFilterOptions(
+    report
+      .command("today", { isDefault: true })
+      .description("Today's summary")
+      .option("-g, --group <field>", "Group by: customer, project, service, text", "project"),
+  ).action(async (cmdOpts) => {
+    const now = new Date();
+    await runReport(program, startOfDay(now), endOfDay(now), cmdOpts);
+  });
 
-  report
-    .command("week")
-    .description("This week's summary (Mon-Sun)")
-    .option("-g, --group <field>", "Group by: customer, project, service, text", "projects_id")
-    .action(async (cmdOpts) => {
-      const now = new Date();
-      await runReport(program, startOfWeek(now), endOfWeek(now), cmdOpts);
-    });
+  addFilterOptions(
+    report
+      .command("week")
+      .description("This week's summary (Mon-Sun)")
+      .option("-g, --group <field>", "Group by: customer, project, service, text", "project"),
+  ).action(async (cmdOpts) => {
+    const now = new Date();
+    await runReport(program, startOfWeek(now), endOfWeek(now), cmdOpts);
+  });
 
-  report
-    .command("month")
-    .description("This month's summary")
-    .option("-g, --group <field>", "Group by: customer, project, service, text", "projects_id")
-    .action(async (cmdOpts) => {
-      const now = new Date();
-      await runReport(program, startOfMonth(now), endOfMonth(now), cmdOpts);
-    });
+  addFilterOptions(
+    report
+      .command("month")
+      .description("This month's summary")
+      .option("-g, --group <field>", "Group by: customer, project, service, text", "project"),
+  ).action(async (cmdOpts) => {
+    const now = new Date();
+    await runReport(program, startOfMonth(now), endOfMonth(now), cmdOpts);
+  });
 
-  report
-    .command("custom")
-    .description("Custom date range report")
-    .requiredOption("--since <date>", "Start date")
-    .requiredOption("--until <date>", "End date")
-    .option("-g, --group <field>", "Group by: customer, project, service, text", "projects_id")
-    .action(async (cmdOpts) => {
-      const since = new Date(parseDateTime(cmdOpts.since));
-      const until = new Date(parseDateTime(cmdOpts.until));
-      await runReport(program, since, until, cmdOpts);
-    });
+  addFilterOptions(
+    report
+      .command("custom")
+      .description("Custom date range report")
+      .requiredOption("--since <date>", "Start date")
+      .requiredOption("--until <date>", "End date")
+      .option("-g, --group <field>", "Group by: customer, project, service, text", "project"),
+  ).action(async (cmdOpts) => {
+    const since = new Date(parseDateTime(cmdOpts.since));
+    const until = new Date(parseDateTime(cmdOpts.until));
+    if (since >= until) {
+      throw new CliError("--since must be before --until", ExitCode.INVALID_ARGS);
+    }
+    await runReport(program, since, until, cmdOpts);
+  });
 }
