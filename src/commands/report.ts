@@ -13,6 +13,7 @@ import {
   formatDuration,
   formatTime,
   parseDateTime,
+  parseDateTimeUntil,
   startOfDay,
   startOfMonth,
   startOfWeek,
@@ -283,7 +284,7 @@ export function registerReportCommands(program: Command): void {
       .option("-g, --group <field>", "Group by: customer, project, service, text", "project"),
   ).action(async (cmdOpts) => {
     const since = new Date(parseDateTime(cmdOpts.since));
-    const until = new Date(parseDateTime(cmdOpts.until));
+    const until = new Date(parseDateTimeUntil(cmdOpts.until));
     if (since >= until) {
       throw new CliError("--since must be before --until", ExitCode.INVALID_ARGS);
     }

@@ -20,6 +20,7 @@ import {
   formatDuration,
   formatTime,
   parseDateTime,
+  parseDateTimeUntil,
   toClockodoDateTime,
 } from "../lib/time.js";
 import { parseId, parseIntStrict } from "../lib/validate.js";
@@ -50,7 +51,7 @@ export function registerEntriesCommands(program: Command): void {
 
       const since = parseDateTime(cmdOpts.since);
       const until = cmdOpts.until
-        ? parseDateTime(cmdOpts.until)
+        ? parseDateTimeUntil(cmdOpts.until)
         : toClockodoDateTime(endOfDay(new Date()));
 
       const filter: Record<string, unknown> = {};

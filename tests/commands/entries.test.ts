@@ -69,6 +69,50 @@ describe("entries list", () => {
   });
 });
 
+describe("entries list --until end-of-day", () => {
+  it("--until bare date produces end-of-day timestamp in API call", async () => {
+    client.getEntries.mockResolvedValue({ entries: [fakeEntry] });
+
+    await runCommand(registerEntriesCommands, [
+      "entries",
+      "list",
+      "--since",
+      "2026-02-25",
+      "--until",
+      "2026-02-25",
+      "--json",
+    ]);
+
+    const args = client.getEntries.mock.calls[0]?.[0] as Record<string, string>;
+    const sinceDate = new Date(args.timeSince);
+    const untilDate = new Date(args.timeUntil);
+    // End-of-day is ~23:59:59 local → difference should be close to 24h (86399s)
+    const diffSeconds = (untilDate.getTime() - sinceDate.getTime()) / 1000;
+    expect(diffSeconds).toBe(86399);
+  });
+
+  it("--until with explicit time is not adjusted to end-of-day", async () => {
+    client.getEntries.mockResolvedValue({ entries: [fakeEntry] });
+
+    await runCommand(registerEntriesCommands, [
+      "entries",
+      "list",
+      "--since",
+      "2026-02-25",
+      "--until",
+      "2026-02-25 14:30",
+      "--json",
+    ]);
+
+    const args = client.getEntries.mock.calls[0]?.[0] as Record<string, string>;
+    const sinceDate = new Date(args.timeSince);
+    const untilDate = new Date(args.timeUntil);
+    // Explicit time 14:30 → difference should be 14.5h = 52200s
+    const diffSeconds = (untilDate.getTime() - sinceDate.getTime()) / 1000;
+    expect(diffSeconds).toBe(52200);
+  });
+});
+
 describe("entries get", () => {
   it("calls getEntry with parsed ID", async () => {
     client.getEntry.mockResolvedValue({ entry: fakeEntry });

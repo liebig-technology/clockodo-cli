@@ -410,6 +410,70 @@ describe("report --group validation", () => {
   });
 });
 
+describe("report custom --until end-of-day", () => {
+  it("same-day --since and --until produces a valid range (until > since)", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, [
+      "report",
+      "custom",
+      "--since",
+      "2026-02-25",
+      "--until",
+      "2026-02-25",
+      "--json",
+    ]);
+
+    expect(client.getEntryGroups).toHaveBeenCalledOnce();
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, string>;
+    // --since bare date → start of day, --until bare date → end of day
+    // So until must be strictly after since
+    expect(new Date(args.timeUntil).getTime()).toBeGreaterThan(new Date(args.timeSince).getTime());
+  });
+
+  it("--until bare date produces end-of-day timestamp (23:59:59 local)", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, [
+      "report",
+      "custom",
+      "--since",
+      "2026-02-25",
+      "--until",
+      "2026-02-25",
+      "--json",
+    ]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, string>;
+    const untilDate = new Date(args.timeUntil);
+    const sinceDate = new Date(args.timeSince);
+    // End-of-day is ~23:59:59 local → difference should be close to 24h (86399s)
+    const diffSeconds = (untilDate.getTime() - sinceDate.getTime()) / 1000;
+    expect(diffSeconds).toBe(86399);
+  });
+
+  it("--until with explicit time is not adjusted to end-of-day", async () => {
+    client.getEntryGroups.mockResolvedValue({ groups: fakeGroups });
+
+    await runCommand(registerReportCommands, [
+      "report",
+      "custom",
+      "--since",
+      "2026-02-25",
+      "--until",
+      "2026-02-25 14:30",
+      "--json",
+    ]);
+
+    const args = client.getEntryGroups.mock.calls[0]?.[0] as Record<string, string>;
+    const untilDate = new Date(args.timeUntil);
+    const sinceDate = new Date(args.timeSince);
+    // Explicit time 14:30 → difference should be 14.5h = 52200s
+    const diffSeconds = (untilDate.getTime() - sinceDate.getTime()) / 1000;
+    expect(diffSeconds).toBe(52200);
+  });
+});
+
 describe("report custom validation", () => {
   it("throws INVALID_ARGS when --since is after --until", async () => {
     try {
