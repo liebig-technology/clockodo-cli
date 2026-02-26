@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.3.0](https://github.com/liebig-technology/clockodo-cli/compare/v0.2.1...v0.3.0) (2026-02-26)
+
+
+### Features
+
+* add --prompt flag to status for shell prompt integration ([0bfff1c](https://github.com/liebig-technology/clockodo-cli/commit/0bfff1c6aac59993268ef75fbefb17f5a6224483))
+* add create, update, delete for customers, projects, and services ([05986b7](https://github.com/liebig-technology/clockodo-cli/commit/05986b7c7bfbd5bd1f1651eda08d706e43b1d367))
+* add filter options to all report subcommands ([4791ac8](https://github.com/liebig-technology/clockodo-cli/commit/4791ac8a473aa083f6a9d9df9ae901247ee276d7))
+
+
+### Bug Fixes
+
+* make --until bare dates inclusive (end-of-day) ([e248da4](https://github.com/liebig-technology/clockodo-cli/commit/e248da4b13349089b8e08b139e83064a40fa6085))
+
+
+### Documentation
+
+* update README with CRUD examples and current CLI help output ([9fc78c2](https://github.com/liebig-technology/clockodo-cli/commit/9fc78c20ddc457a96fe6b31efbf8dde805ee875b))
+
 ## [0.2.1](https://github.com/liebig-technology/clockodo-cli/compare/v0.2.0...v0.2.1) (2026-02-23)
 
 
