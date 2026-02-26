@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.1](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.0...v0.3.1) (2026-02-26)
+
+
+### Miscellaneous
+
+* **deps:** bump rollup from 4.58.0 to 4.59.0 in the npm_and_yarn group across 1 directory ([3d05a60](https://github.com/liebig-technology/clockodo-cli/commit/3d05a60435048d7c50de444aa7563d65bf890791))
+* **deps:** bump rollup in the npm_and_yarn group across 1 directory ([a5ff48d](https://github.com/liebig-technology/clockodo-cli/commit/a5ff48d6ab37dcdef625ee8e0ca15858c9dc3986))
+
 ## [0.3.0](https://github.com/liebig-technology/clockodo-cli/compare/v0.2.1...v0.3.0) (2026-02-26)
 
 
