@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.2](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.1...v0.3.2) (2026-03-27)
+
+
+### Miscellaneous
+
+* **deps:** bump picomatch in the npm_and_yarn group across 1 directory ([#6](https://github.com/liebig-technology/clockodo-cli/issues/6)) ([25839ee](https://github.com/liebig-technology/clockodo-cli/commit/25839eee71490ac1f584a896b5daa6c84fd08bec))
+* **deps:** bump yaml in the npm_and_yarn group across 1 directory ([#8](https://github.com/liebig-technology/clockodo-cli/issues/8)) ([1d9915a](https://github.com/liebig-technology/clockodo-cli/commit/1d9915aee5b472a067d3a6db14efb028d02962c3))
+
 ## [0.3.1](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.0...v0.3.1) (2026-02-26)
 
 
