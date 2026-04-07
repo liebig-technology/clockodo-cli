@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.2...v0.3.3) (2026-04-07)
+
+
+### Miscellaneous
+
+* **deps:** bump vite in the npm_and_yarn group across 1 directory ([#9](https://github.com/liebig-technology/clockodo-cli/issues/9)) ([de43684](https://github.com/liebig-technology/clockodo-cli/commit/de43684cad8dc691563988524c9c3fee352960f4))
+
 ## [0.3.2](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.1...v0.3.2) (2026-03-27)
 
 
