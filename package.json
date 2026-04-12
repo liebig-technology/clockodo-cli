@@ -1,6 +1,6 @@
 {
   "name": "@liebig-technology/clockodo-cli",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "AI-friendly CLI for the Clockodo time tracking API",
   "type": "module",
   "bin": {

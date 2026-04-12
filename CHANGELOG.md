@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.3...v0.3.4) (2026-04-12)
+
+
+### Miscellaneous
+
+* **deps:** bump axios in the npm_and_yarn group across 1 directory ([#11](https://github.com/liebig-technology/clockodo-cli/issues/11)) ([8165c83](https://github.com/liebig-technology/clockodo-cli/commit/8165c83945bc716ccc110671a26b84395afdaec7))
+
 ## [0.3.3](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.2...v0.3.3) (2026-04-07)
 
 
