@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.5](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.4...v0.3.5) (2026-04-16)
+
+
+### Miscellaneous
+
+* **deps:** bump follow-redirects ([#13](https://github.com/liebig-technology/clockodo-cli/issues/13)) ([a2f10eb](https://github.com/liebig-technology/clockodo-cli/commit/a2f10eb7fd3c6c6dfe8c0e61a5b84234f9af781f))
+
 ## [0.3.4](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.3...v0.3.4) (2026-04-12)
 
 
