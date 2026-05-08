@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.6](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.5...v0.3.6) (2026-05-08)
+
+
+### Miscellaneous
+
+* **deps:** bump axios from 1.15.0 to 1.16.0 in the npm_and_yarn group across 1 directory ([edaccac](https://github.com/liebig-technology/clockodo-cli/commit/edaccacf36992588c0185cf861424b68a47867b6))
+
 ## [0.3.5](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.4...v0.3.5) (2026-04-16)
 
 
