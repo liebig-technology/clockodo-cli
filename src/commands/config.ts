@@ -23,7 +23,7 @@ export function registerConfigCommands(program: Command): void {
         message: "Clockodo email address:",
         placeholder: "you@example.com",
         initialValue: getConfigValue("email") ?? "",
-        validate: (v) => (!v || !v.includes("@") ? "Must be a valid email" : undefined),
+        validate: (v) => (!v?.includes("@") ? "Must be a valid email" : undefined),
       });
       if (p.isCancel(email)) return process.exit(0);
 
