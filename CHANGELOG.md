@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.3.7](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.6...v0.3.7) (2026-05-20)
+
+
+### Bug Fixes
+
+* **deps:** bump fast-uri to 3.1.2 and upgrade dev deps to typescript 6 ([b67c1dc](https://github.com/liebig-technology/clockodo-cli/commit/b67c1dcc234e1063cc5f4064f8c864d8d7480be4))
+
+
+### Miscellaneous
+
+* add 7-day supply-chain cooldown for dependency installs ([5de79bd](https://github.com/liebig-technology/clockodo-cli/commit/5de79bdf6d198cfc88fda0c9f86fa2058cdf87f9))
+* **deps:** bump postcss from 8.5.6 to 8.5.14 in the npm_and_yarn group across 1 directory ([7308005](https://github.com/liebig-technology/clockodo-cli/commit/730800585e8e6ea533d4c52a6bffb4bf2941014f))
+
 ## [0.3.6](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.5...v0.3.6) (2026-05-08)
 
 
