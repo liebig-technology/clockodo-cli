@@ -1,3 +1,10 @@
 ignoredBuiltDependencies:
   - '@biomejs/biome'
   - esbuild
+
+# Supply-chain cooldown: only install package versions published at least
+# 7 days ago, giving time for malicious releases to be caught and yanked.
+# Bypass a specific version when a critical fix can't wait via:
+#   minimumReleaseAgeExclude:
+#     - some-package@1.2.3
+minimumReleaseAge: 10080
