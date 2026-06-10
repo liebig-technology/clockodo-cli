@@ -1,6 +1,10 @@
-ignoredBuiltDependencies:
-  - '@biomejs/biome'
-  - esbuild
+# pnpm 11 replaced ignoredBuiltDependencies/onlyBuiltDependencies with the
+# allowBuilds map. These packages ship their native binaries via
+# optionalDependencies, so their lifecycle build scripts are unnecessary —
+# explicitly opt out (false) so installs don't error on undecided builds.
+allowBuilds:
+  '@biomejs/biome': false
+  esbuild: false
 
 # Force the transitive `qs` off the DoS-vulnerable range (Dependabot #21).
 # clockodo declares qs:^6.14.2, so the patched 6.15.2 is already in-range.
