@@ -62,5 +62,10 @@
     "*": [
       "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
     ]
+  },
+  "pnpm": {
+    "overrides": {
+      "qs@>=6.11.1 <=6.15.1": ">=6.15.2"
+    }
   }
 }
