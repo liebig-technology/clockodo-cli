@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.8](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.7...v0.3.8) (2026-06-10)
+
+
+### Bug Fixes
+
+* **deps:** patch qs DoS and pin pnpm 11.5.2 for supply-chain hardening ([#20](https://github.com/liebig-technology/clockodo-cli/issues/20)) ([85ab502](https://github.com/liebig-technology/clockodo-cli/commit/85ab50229d7acbfc13a07820ffb06d0f508e7001))
+
 ## [0.3.7](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.6...v0.3.7) (2026-05-20)
 
 
