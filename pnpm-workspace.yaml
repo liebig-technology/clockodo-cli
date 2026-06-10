@@ -2,6 +2,11 @@ ignoredBuiltDependencies:
   - '@biomejs/biome'
   - esbuild
 
+# Force the transitive `qs` off the DoS-vulnerable range (Dependabot #21).
+# clockodo declares qs:^6.14.2, so the patched 6.15.2 is already in-range.
+overrides:
+  qs@>=6.11.1 <=6.15.1: '>=6.15.2'
+
 # Supply-chain cooldown: only install package versions published at least
 # 7 days ago, giving time for malicious releases to be caught and yanked.
 # Bypass a specific version when a critical fix can't wait via:
