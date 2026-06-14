@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.9](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.8...v0.3.9) (2026-06-14)
+
+
+### Bug Fixes
+
+* **deps:** override transitive esbuild to &gt;=0.28.1 (Deno RCE) ([#22](https://github.com/liebig-technology/clockodo-cli/issues/22)) ([77d3875](https://github.com/liebig-technology/clockodo-cli/commit/77d3875db6bddd0868c3a8eb79522034f34b4e92))
+
 ## [0.3.8](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.7...v0.3.8) (2026-06-10)
 
 
