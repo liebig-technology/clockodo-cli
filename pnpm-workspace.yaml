@@ -8,8 +8,13 @@ allowBuilds:
 
 # Force the transitive `qs` off the DoS-vulnerable range (Dependabot #21).
 # clockodo declares qs:^6.14.2, so the patched 6.15.2 is already in-range.
+#
+# Force the transitive `esbuild` off the Deno-module RCE range (GHSA-gv7w-rqvm-qjhr).
+# Affected >=0.17.0 <0.28.1; patched in 0.28.1. Only a build/test-time dep
+# (tsup, vite/vitest, tsx) — never shipped in the published package.
 overrides:
   qs@>=6.11.1 <=6.15.1: '>=6.15.2'
+  esbuild@>=0.17.0 <0.28.1: '>=0.28.1'
 
 # Supply-chain cooldown: only install package versions published at least
 # 7 days ago, giving time for malicious releases to be caught and yanked.
@@ -17,3 +22,9 @@ overrides:
 #   minimumReleaseAgeExclude:
 #     - some-package@1.2.3
 minimumReleaseAge: 10080
+# esbuild 0.28.1 (GHSA-gv7w-rqvm-qjhr fix) was published 2026-06-11, inside the
+# 7-day window. The security fix can't wait for the cooldown, so allow it and its
+# platform-specific binary packages (@esbuild/*) early.
+minimumReleaseAgeExclude:
+  - esbuild@0.28.1
+  - '@esbuild/*'
