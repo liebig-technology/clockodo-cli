@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.10](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.9...v0.3.10) (2026-07-07)
+
+
+### Bug Fixes
+
+* **deps:** bump vite to 7.3.5 and form-data to 4.0.6 ([#24](https://github.com/liebig-technology/clockodo-cli/issues/24)) ([3d53749](https://github.com/liebig-technology/clockodo-cli/commit/3d53749d198296878eb79724a4a3460ba7cb3216))
+
 ## [0.3.9](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.8...v0.3.9) (2026-06-14)
 
 
