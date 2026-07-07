@@ -12,9 +12,23 @@ allowBuilds:
 # Force the transitive `esbuild` off the Deno-module RCE range (GHSA-gv7w-rqvm-qjhr).
 # Affected >=0.17.0 <0.28.1; patched in 0.28.1. Only a build/test-time dep
 # (tsup, vite/vitest, tsx) — never shipped in the published package.
+#
+# Force the transitive `vite` off two Windows-only path-handling flaws
+# (Dependabot #24/#25): `server.fs.deny` bypass (GHSA-fx2h-pf6j-xcff, high) and
+# launch-editor NTLMv2 hash disclosure (GHSA-v6wh-96g9-6wx3, moderate).
+# Affected >=7.0.0 <=7.3.4; patched in 7.3.5. Pulled in via vitest — dev-only.
+# Pinned to the exact 7.3.5 (not `>=7.3.5`): with a range value pnpm targets the
+# newest match (7.3.6), which the cooldown below blocks, and rather than falling
+# back to 7.3.5 it silently keeps the vulnerable 7.3.2. Bump by hand when needed.
+#
+# Force the transitive `form-data` off the CRLF-injection range
+# (GHSA-hmw2-7cc7-3qxx, high). Affected >=4.0.0 <4.0.6; patched in 4.0.6.
+# Reaches production via clockodo > axios > form-data.
 overrides:
   qs@>=6.11.1 <=6.15.1: '>=6.15.2'
   esbuild@>=0.17.0 <0.28.1: '>=0.28.1'
+  vite: 7.3.5
+  form-data@>=4.0.0 <4.0.6: '>=4.0.6'
 
 # Supply-chain cooldown: only install package versions published at least
 # 7 days ago, giving time for malicious releases to be caught and yanked.
@@ -22,9 +36,5 @@ overrides:
 #   minimumReleaseAgeExclude:
 #     - some-package@1.2.3
 minimumReleaseAge: 10080
-# esbuild 0.28.1 (GHSA-gv7w-rqvm-qjhr fix) was published 2026-06-11, inside the
-# 7-day window. The security fix can't wait for the cooldown, so allow it and its
-# platform-specific binary packages (@esbuild/*) early.
-minimumReleaseAgeExclude:
-  - esbuild@0.28.1
-  - '@esbuild/*'
+# (No active exclusions — esbuild 0.28.1 and vite 7.3.5 have both aged past the
+# 7-day window, so they no longer need to be exempted.)
