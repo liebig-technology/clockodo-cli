@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.11](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.10...v0.3.11) (2026-08-12)
+
+
+### Bug Fixes
+
+* **deps:** patch axios, fast-uri and postcss advisories ([#27](https://github.com/liebig-technology/clockodo-cli/issues/27)) ([fa3b4a5](https://github.com/liebig-technology/clockodo-cli/commit/fa3b4a5831cd57ee0e442d627979a1e34ddc0eab))
+
 ## [0.3.10](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.9...v0.3.10) (2026-07-07)
 
 
