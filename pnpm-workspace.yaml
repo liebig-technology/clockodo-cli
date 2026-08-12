@@ -24,11 +24,31 @@ allowBuilds:
 # Force the transitive `form-data` off the CRLF-injection range
 # (GHSA-hmw2-7cc7-3qxx, high). Affected >=4.0.0 <4.0.6; patched in 4.0.6.
 # Reaches production via clockodo > axios > form-data.
+#
+# Force the transitive `axios` off ten advisories fixed in 1.18.0 (Dependabot
+# #27-#36): inherited proxy after interceptor config cloning (high), prototype
+# pollution in option/auth handling, maxBodyLength bypasses and formToJSON
+# recursion DoS. Reaches production via clockodo, which declares axios:^1.13.5,
+# so 1.18.1 is in-range. Pinned exactly for the same cooldown reason as `vite`.
+#
+# Force the transitive `fast-uri` off three host-confusion flaws (Dependabot
+# #37/#38/#40, all high): failed IDN canonicalization, literal backslash
+# authority delimiter and backslash authority introducer. Patched in 3.1.5.
+# Reaches production via conf > ajv, which declares fast-uri:^3.0.1 — so the
+# pin must stay on the 3.x line; a `>=3.1.5` range would resolve to 4.x.
+#
+# Force the transitive `postcss` off the sourceMappingURL path traversal
+# (Dependabot #39, high). Affected <=8.5.17; patched in 8.5.18. Pulled in via
+# vite/tsup — dev-only. Pinned to 8.5.25, the newest release that has aged past
+# the cooldown below (8.5.26 has not).
 overrides:
   qs@>=6.11.1 <=6.15.1: '>=6.15.2'
   esbuild@>=0.17.0 <0.28.1: '>=0.28.1'
   vite: 7.3.5
   form-data@>=4.0.0 <4.0.6: '>=4.0.6'
+  axios@>=1.0.0 <1.18.0: 1.18.1
+  fast-uri@>=3.0.0 <3.1.5: 3.1.5
+  postcss@<=8.5.17: 8.5.25
 
 # Supply-chain cooldown: only install package versions published at least
 # 7 days ago, giving time for malicious releases to be caught and yanked.
