@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.12](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.11...v0.3.12) (2026-10-13)
+
+
+### Bug Fixes
+
+* **deps:** patch axios, fast-uri, faker, qs, vitest, nanoid and source-map-js advisories ([#30](https://github.com/liebig-technology/clockodo-cli/issues/30)) ([47dd252](https://github.com/liebig-technology/clockodo-cli/commit/47dd25261f0ef6eaa98fb68bb9820589f7a31d04))
+
 ## [0.3.11](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.10...v0.3.11) (2026-08-12)
 
 
