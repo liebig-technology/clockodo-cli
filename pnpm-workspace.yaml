@@ -6,8 +6,10 @@ allowBuilds:
   '@biomejs/biome': false
   esbuild: false
 
-# Force the transitive `qs` off the DoS-vulnerable range (Dependabot #21).
-# clockodo declares qs:^6.14.2, so the patched 6.15.2 is already in-range.
+# Force the transitive `qs` off the DoS-vulnerable range (Dependabot #21) and
+# two further moderate advisories fixed in 6.16.0. clockodo declares
+# qs:^6.14.2, so 6.16.0 is in-range. Pinned exactly for the cooldown reason
+# described under `vite`.
 #
 # Force the transitive `esbuild` off the Deno-module RCE range (GHSA-gv7w-rqvm-qjhr).
 # Affected >=0.17.0 <0.28.1; patched in 0.28.1. Only a build/test-time dep
@@ -28,12 +30,15 @@ allowBuilds:
 # Force the transitive `axios` off ten advisories fixed in 1.18.0 (Dependabot
 # #27-#36): inherited proxy after interceptor config cloning (high), prototype
 # pollution in option/auth handling, maxBodyLength bypasses and formToJSON
-# recursion DoS. Reaches production via clockodo, which declares axios:^1.13.5,
-# so 1.18.1 is in-range. Pinned exactly for the same cooldown reason as `vite`.
+# recursion DoS. A further batch of advisories (header injection, NO_PROXY CIDR
+# bypass and others) is fixed in 1.20.0. Reaches production via clockodo, which
+# declares axios:^1.13.5, so 1.20.0 is in-range. Pinned exactly for the same
+# cooldown reason as `vite`.
 #
 # Force the transitive `fast-uri` off three host-confusion flaws (Dependabot
 # #37/#38/#40, all high): failed IDN canonicalization, literal backslash
-# authority delimiter and backslash authority introducer. Patched in 3.1.5.
+# authority delimiter and backslash authority introducer. Patched in 3.1.5;
+# four further advisories are fixed across 3.1.6-3.1.8, so pin 3.1.8.
 # Reaches production via conf > ajv, which declares fast-uri:^3.0.1 — so the
 # pin must stay on the 3.x line; a `>=3.1.5` range would resolve to 4.x.
 #
@@ -41,14 +46,25 @@ allowBuilds:
 # (Dependabot #39, high). Affected <=8.5.17; patched in 8.5.18. Pulled in via
 # vite/tsup — dev-only. Pinned to 8.5.25, the newest release that has aged past
 # the cooldown below (8.5.26 has not).
+#
+# Force postcss's own transitive deps off two high advisories: `nanoid` (patched
+# in 3.3.18) and `source-map-js` (patched in 1.2.2). postcss declares
+# nanoid:^3.3.16 and source-map-js:^1.2.1, so both pins stay in-range. Dev-only.
+#
+# Force the transitive `@faker-js/faker` off a high advisory (affected
+# <=10.4.0). Reaches production via clockodo, which declares
+# @faker-js/faker:^10.3.0, so 10.6.0 is in-range.
 overrides:
-  qs@>=6.11.1 <=6.15.1: '>=6.15.2'
+  qs@<6.16.0: 6.16.0
   esbuild@>=0.17.0 <0.28.1: '>=0.28.1'
   vite: 7.3.5
   form-data@>=4.0.0 <4.0.6: '>=4.0.6'
-  axios@>=1.0.0 <1.18.0: 1.18.1
-  fast-uri@>=3.0.0 <3.1.5: 3.1.5
+  axios@>=1.0.0 <1.20.0: 1.20.0
+  fast-uri@>=3.0.0 <3.1.8: 3.1.8
   postcss@<=8.5.17: 8.5.25
+  nanoid@<3.3.18: 3.3.20
+  source-map-js@>=1.0.0 <1.2.2: 1.2.2
+  '@faker-js/faker@<=10.4.0': 10.6.0
 
 # Supply-chain cooldown: only install package versions published at least
 # 7 days ago, giving time for malicious releases to be caught and yanked.
