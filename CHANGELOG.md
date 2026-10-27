@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.13](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.12...v0.3.13) (2026-10-27)
+
+
+### Bug Fixes
+
+* **deps:** patch vite and fast-uri advisories and update dependencies ([#32](https://github.com/liebig-technology/clockodo-cli/issues/32)) ([854e416](https://github.com/liebig-technology/clockodo-cli/commit/854e41691c8ebc49f615e358cf99463be93c5fbf))
+
 ## [0.3.12](https://github.com/liebig-technology/clockodo-cli/compare/v0.3.11...v0.3.12) (2026-10-13)
 
 
