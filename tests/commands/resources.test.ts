@@ -97,103 +97,106 @@ const resources = [
   },
 ] as const;
 
-describe.each(resources)("$name", ({
-  name,
-  register,
-  listMethod,
-  getMethod,
-  addMethod,
-  editMethod,
-  deleteMethod,
-  listData,
-  getData,
-  createArgs,
-  createExpected,
-  createResult,
-  updateArgs,
-  updateExpected,
-  updateResult,
-}) => {
-  it("list: returns data array in JSON", async () => {
-    client[listMethod].mockResolvedValue(listData);
+describe.each(resources)(
+  "$name",
+  ({
+    name,
+    register,
+    listMethod,
+    getMethod,
+    addMethod,
+    editMethod,
+    deleteMethod,
+    listData,
+    getData,
+    createArgs,
+    createExpected,
+    createResult,
+    updateArgs,
+    updateExpected,
+    updateResult,
+  }) => {
+    it("list: returns data array in JSON", async () => {
+      client[listMethod].mockResolvedValue(listData);
 
-    const result = await runCommand(register, [name, "list", "--json"]);
-    const json = result.parseJson();
+      const result = await runCommand(register, [name, "list", "--json"]);
+      const json = result.parseJson();
 
-    expect(client[listMethod]).toHaveBeenCalledOnce();
-    expect(json.data).toBeInstanceOf(Array);
-  });
+      expect(client[listMethod]).toHaveBeenCalledOnce();
+      expect(json.data).toBeInstanceOf(Array);
+    });
 
-  it("get: calls getter with parsed ID", async () => {
-    client[getMethod].mockResolvedValue(getData);
+    it("get: calls getter with parsed ID", async () => {
+      client[getMethod].mockResolvedValue(getData);
 
-    const result = await runCommand(register, [name, "get", "1", "--json"]);
+      const result = await runCommand(register, [name, "get", "1", "--json"]);
 
-    expect(client[getMethod]).toHaveBeenCalledWith({ id: 1 });
-    expect(result.parseJson().data).toBeDefined();
-  });
+      expect(client[getMethod]).toHaveBeenCalledWith({ id: 1 });
+      expect(result.parseJson().data).toBeDefined();
+    });
 
-  it("create: calls add method with required params", async () => {
-    client[addMethod].mockResolvedValue(createResult);
+    it("create: calls add method with required params", async () => {
+      client[addMethod].mockResolvedValue(createResult);
 
-    const result = await runCommand(register, [name, "create", ...createArgs, "--json"]);
-    const json = result.parseJson();
+      const result = await runCommand(register, [name, "create", ...createArgs, "--json"]);
+      const json = result.parseJson();
 
-    expect(client[addMethod]).toHaveBeenCalledWith(expect.objectContaining(createExpected));
-    expect(json.data).toBeDefined();
-  });
+      expect(client[addMethod]).toHaveBeenCalledWith(expect.objectContaining(createExpected));
+      expect(json.data).toBeDefined();
+    });
 
-  it("create: passes optional fields when provided", async () => {
-    client[addMethod].mockResolvedValue(createResult);
+    it("create: passes optional fields when provided", async () => {
+      client[addMethod].mockResolvedValue(createResult);
 
-    await runCommand(register, [
-      name,
-      "create",
-      ...createArgs,
-      "--number",
-      "X-001",
-      "--note",
-      "Test note",
-      "--no-active",
-      "--json",
-    ]);
+      await runCommand(register, [
+        name,
+        "create",
+        ...createArgs,
+        "--number",
+        "X-001",
+        "--note",
+        "Test note",
+        "--no-active",
+        "--json",
+      ]);
 
-    expect(client[addMethod]).toHaveBeenCalledWith(
-      expect.objectContaining({
-        ...createExpected,
-        number: "X-001",
-        note: "Test note",
-        active: false,
-      }),
-    );
-  });
+      expect(client[addMethod]).toHaveBeenCalledWith(
+        expect.objectContaining({
+          ...createExpected,
+          number: "X-001",
+          note: "Test note",
+          active: false,
+        }),
+      );
+    });
 
-  it("update: calls edit method with id and provided fields", async () => {
-    client[editMethod].mockResolvedValue(updateResult);
+    it("update: calls edit method with id and provided fields", async () => {
+      client[editMethod].mockResolvedValue(updateResult);
 
-    const result = await runCommand(register, [
-      name,
-      "update",
-      String(getData.data.id),
-      ...updateArgs,
-      "--json",
-    ]);
-    const json = result.parseJson();
+      const result = await runCommand(register, [
+        name,
+        "update",
+        String(getData.data.id),
+        ...updateArgs,
+        "--json",
+      ]);
+      const json = result.parseJson();
 
-    expect(client[editMethod]).toHaveBeenCalledWith(expect.objectContaining(updateExpected));
-    expect(json.data).toBeDefined();
-  });
+      expect(client[editMethod]).toHaveBeenCalledWith(expect.objectContaining(updateExpected));
+      expect(json.data).toBeDefined();
+    });
 
-  it("delete: calls delete method with correct id", async () => {
-    client[deleteMethod].mockResolvedValue({ success: true });
+    it("delete: calls delete method with correct id", async () => {
+      client[deleteMethod].mockResolvedValue({ success: true });
 
-    const result = await runCommand(register, [name, "delete", "42", "--force", "--json"]);
-    const json = result.parseJson();
+      const result = await runCommand(register, [name, "delete", "42", "--force", "--json"]);
+      const json = result.parseJson();
 
-    expect(client[deleteMethod]).toHaveBeenCalledWith({ id: 42 });
-    expect(json.data).toEqual({ success: true, id: 42 });
-  });
-});
+      expect(client[deleteMethod]).toHaveBeenCalledWith({ id: 42 });
+      expect(json.data).toEqual({ success: true, id: 42 });
+    });
+  },
+);
 
 describe("create: requires --name option", () => {
   it.each([
